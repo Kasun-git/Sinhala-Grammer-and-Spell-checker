@@ -10,8 +10,3 @@ This project is a **Sinhala Spell and Grammar Checker** that leverages approxima
 - **Batch Processing**: Processes paragraphs sentence by sentence for both spelling and grammar corrections.
 - **Customizable Dictionary**: Accepts a user-defined Sinhala word dictionary in JSON format.
 - **Detailed Feedback**: Provides a list of incorrect words and their corrections.
-
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/sinhala-spell-checker.git

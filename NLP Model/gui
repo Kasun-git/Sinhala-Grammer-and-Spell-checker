@@ -1,0 +1,83 @@
+import openai
+import os
+import tkinter as tk
+from tkinter import scrolledtext, messagebox
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Retrieve the API key from environment variables
+token = os.getenv("GITHUB_TOKEN") 
+base_url = "https://models.inference.ai.azure.com"  
+model_name = "gpt-4o"  
+
+# Predefined prompt
+grammar_prompt = (
+    "when sentence started from මම then must be end with මී. "
+    "when sentence started from අපි then must be end with මු. "
+    "Subject-Verb Agreement: Subject and verb must agree in number, gender, and person. "
+    "Word Forms: Singular and plural words influence verb conjugation. "
+    "Person Variations: First, second, and third person dictate sentence structure. "
+    "Tense: Sentences should not mix past and non-past tenses. "
+    "Gender Variations: Verb forms vary for masculine, feminine, and neutral genders. "
+    "Case Roles: Focus determines sentence emphasis (active/passive). "
+    "fullstop(.) is indicate the end of the sentence. "
+    "use these 8 grammer rules for correct the given sinhala paragraph. "
+    "display the original sentence, spelling errors, grammar errors, and most suitable corrected paragraph, "
+    "and give only those things using sinhala language, others give in english language. "
+    "print the accuracy also."
+)
+
+def submit_text():
+    user_input = text_input.get("1.0", tk.END).strip()
+    if not user_input:
+        messagebox.showwarning("Input Error", "Please enter a paragraph to process.")
+        return
+
+    try:
+        # Configure the OpenAI client
+        openai.api_key = token
+        openai.api_base = base_url
+
+        # Create a chat completion request
+        full_prompt = grammar_prompt + "\n" + user_input 
+        response = openai.ChatCompletion.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": full_prompt},
+            ],
+            temperature=1,
+            max_tokens=4096,
+            top_p=1,
+        ) 
+
+        # Output the assistant's response in the result area
+        result_output.delete("1.0", tk.END)  
+        result_output.insert(tk.END, response['choices'][0]['message']['content'])
+
+    except Exception as err:
+        messagebox.showerror("Error", f"An error occurred: {err}")
+
+# Create the main window
+window = tk.Tk()
+window.title("Sinhala Grammar Correction Assistant")
+
+# Create and place a label
+label = tk.Label(window, text="Enter a Sinhala paragraph:")
+label.pack(pady=10)
+
+# Create a text input area
+text_input = scrolledtext.ScrolledText(window, wrap=tk.WORD, width=130, height=8)
+text_input.pack(pady=10)
+
+# Create a submit button
+submit_button = tk.Button(window, text="Submit", command=submit_text)
+submit_button.pack(pady=10)
+
+# Create a text output area
+result_output = scrolledtext.ScrolledText(window, wrap=tk.WORD, width=130, height=30)
+result_output.pack(pady=10)
+
+window.mainloop()
